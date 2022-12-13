@@ -31,3 +31,7 @@ A library query on nested structure, inspired by [specter](https://github.com/re
     
     query(m,["C",S.INDEXED_VALS])
     # [(0, 'B1'), (1, 'B2')]
+
+    query(m,["C",(S.MKEY_IN,set(["B1","B2"]))])
+    # {'B1': [1, 2], 'B2': [3, 4]}
+

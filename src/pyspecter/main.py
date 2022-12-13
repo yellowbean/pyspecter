@@ -10,6 +10,7 @@ class S(Enum):
     INDEXED_VALS=6
     FILTER=7
     MULTI_PATH=8
+    MKEY_IN=9
 
 def query(d,p,debug=False):
     if debug:
@@ -19,6 +20,9 @@ def query(d,p,debug=False):
             return d
         case [S.MKEYS,*_r] if isinstance(d,dict):
             return query(list(d.keys()),_r)
+        case [(S.MKEY_IN,ks),*_r] if isinstance(d,dict):
+            _d = {k:v for k,v in d.items() if k in ks}
+            return query(_d,_r)
         case [S.MVALS,*_r] if isinstance(d,dict):
             return query(list(d.values()),_r)   
         case [S.FIRST,*_r]:
@@ -40,3 +44,4 @@ def query(d,p,debug=False):
                 return query(d[_h],_r)
             except KeyError as ke:
                 print(f"{p[0]} is not in {d}")
+
