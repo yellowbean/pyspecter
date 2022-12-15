@@ -11,6 +11,10 @@ class S(Enum):
     FILTER=7
     MULTI_PATH=8
     MKEY_IN=9
+    MKEY_IF=10
+    MVAL_IF=11
+    SUB_MAP=12
+    NTH_PATH=13
 
 def query(d,p,debug=False):
     if debug:
@@ -29,8 +33,10 @@ def query(d,p,debug=False):
             return [ query(_[0],_r) for _ in d]
         case [S.LAST,*_r]:
             return [ query(_[-1],_r) for _ in d] 
-        case [(S.NTH,n),*_r]:
-            return query(d[n],_r)  
+        case [(S.NTH,n),*_r] if isinstance(n,int):
+            return query(d[n],_r)
+        case [(S.NTH,*n),*_r]:
+            return [ query(d[_],_r) for _ in n ]
         case [S.INDEXED_VALS,*_r]:
             return [ query(_,_r) for _ in enumerate(d)]
         case [(S.MULTI_PATH,*_p),*_r]:
@@ -39,9 +45,16 @@ def query(d,p,debug=False):
             return [ query(_ ,_r) for _ in d ]
         case [(S.FILTER,f),*_r]:
             return [ query(_ ,_r) for _ in d if f(_)]
+        case [(S.MKEY_IF,f),*_r]:
+            return [ query(d[k],_r) for k in d.keys() if f(k) ]
+        case [(S.MVAL_IF,f),*_r]:
+            return [ query(d[k],_r) for k,v in d.items() if f(v) ]
+        case [(S.SUB_MAP,ks),*_r]:
+            return query({k:v for k,v in d.items() if k in ks} ,_r)
+        case [(S.NTH_PATH, *paths),*_r]:
+            return [query(d,_r)[npth] for npth in paths]
         case [_h,*_r] if isinstance(d,dict):
             try:
                 return query(d[_h],_r)
             except KeyError as ke:
-                print(f"{p[0]} is not in {d}")
-
+                print(f"{_h} is not in {d}")
