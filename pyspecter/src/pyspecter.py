@@ -41,30 +41,41 @@ def query(d,p,debug=False):
             return query(_d,_r)
         case [S.MVALS,*_r] if isinstance(d,dict):
             return query(list(d.values()),_r)   
-        case [S.FIRST,*_r]:
-            return [ query(_[0],_r) for _ in d]
-        case [S.LAST,*_r]:
-            return [ query(_[-1],_r) for _ in d] 
+        case [S.FIRST,*_r] if isinstance(d,list):
+            return query(d[0],_r)
+        case [S.FIRST,*_r]  if isinstance(d,dict):
+            ps = list(d.items())
+            return query(ps[0],_r)
+        case [S.LAST,*_r] if isinstance(d,list):
+            return query(d[-1],_r)
+        case [S.LAST,*_r]  if isinstance(d,dict):
+            ps = list(d.items())
+            return query(ps[-1],_r)
         case [(S.NTH,n),*_r] if isinstance(n,int):
             return query(d[n],_r)
         case [(S.NTH,*n),*_r]:
             return [ query(d[_],_r) for _ in n ]
-        case [S.INDEXED_VALS,*_r]:
-            return [ query(_,_r) for _ in enumerate(d)]
+        case [S.INDEXED_VALS,*_r] if isinstance(d, dict):
+            ps = list(d.items())
+            return [query(_,_r) for _ in enumerate(ps)]
+        case [S.INDEXED_VALS,*_r] if isinstance(d, list):
+            return [query(_,_r) for _ in enumerate(d)]
         case [(S.MULTI_PATH,*_p),*_r]:
             return [ query(d, _+_r) for _ in _p ]    
         case [S.ALL,*_r] if isinstance(d,list):
-            return [ query(_ ,_r) for _ in d ]
-        case [(S.FILTER,f),*_r]:
-            return [ query(_ ,_r) for _ in d if f(_)]
-        case [(S.MKEY_IF,f),*_r]:
+            return [query(_, _r) for _ in d]
+        case [(S.FILTER, f), *_r] if isinstance(d, dict):
+            return [query(d[k], _r) for k, v in d.items() if f(k, v)]
+        case [(S.FILTER, f), *_r] if isinstance(d, list):
+            return [query(_, _r) for _ in d if f(_)]
+        case [(S.MKEY_IF, f), *_r]:
             return [ query(d[k],_r) for k in d.keys() if f(k) ]
-        case [(S.MVAL_IF,f),*_r]:
-            return [ query(d[k],_r) for k,v in d.items() if f(v) ]
-        case [(S.SUB_MAP,ks),*_r]:
+        case [(S.MVAL_IF, f), *_r]:
+            return [ query(d[k],_r) for k, v in d.items() if f(v) ]
+        case [(S.SUB_MAP, ks), *_r]:
             return query({k:v for k,v in d.items() if k in ks} ,_r)
         case [(S.NTH_PATH, *paths),*_r]:
-            return [query(d,_r)[npth] for npth in paths]
+            return [query(d, _r)[npth] for npth in paths]
         case [S.NONE_LIST, *_r]:
             if d is None:
                 return query([],_r)
