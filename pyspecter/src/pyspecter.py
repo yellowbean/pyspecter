@@ -18,9 +18,10 @@ class S(Enum):
     NONE_LIST=14
     NONE_SET=15
     NONE_TUPLE=16
+    NONE_VAL=17
     #STAY=17
     #STOP=18
-    VAL=19
+    VAL=20
 
 def query(d,p,debug=False):
     if debug:
@@ -91,6 +92,10 @@ def query(d,p,debug=False):
         case [S.VAL, *_r]:
             sub_result = query(d,_r)
             return [ [d, _] for _ in sub_result ]
+        case [(S.NONE_VAL,v), *_r]:
+            if d is None:
+                return v
+            return query(d, _r)
         case [_h,*_r] if isinstance(d,dict):
             try:
                 return query(d[_h],_r)

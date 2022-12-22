@@ -46,6 +46,11 @@ def test_sub_map():
 
 def test_nthpath():
     assert query(m, ["D", (S.NTH_PATH, 2)]) == [3]
+
+def test_none_to_val():
+    assert query(None,[(S.NONE_VAL,10)]) == 10
+    assert query(5,[(S.NONE_VAL,10)]) == 5
+
 #query(m,["D", (S.NTH, 2)])
 # 3
 
