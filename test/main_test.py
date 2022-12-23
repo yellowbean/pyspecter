@@ -51,6 +51,10 @@ def test_none_to_val():
     assert query(None,[(S.NONE_VAL,10)]) == 10
     assert query(5,[(S.NONE_VAL,10)]) == 5
 
+def test_srange():
+    assert query(m, ["D",(S.SRANGE,2,3)]) == [3]
+
+
 #query(m,["D", (S.NTH, 2)])
 # 3
 

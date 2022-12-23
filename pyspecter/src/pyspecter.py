@@ -22,6 +22,7 @@ class S(Enum):
     #STAY=17
     #STOP=18
     VAL=20
+    SRANGE=21
 
 def query(d,p,debug=False):
     if debug:
@@ -96,6 +97,8 @@ def query(d,p,debug=False):
             if d is None:
                 return v
             return query(d, _r)
+        case [(S.SRANGE,s,e), *_r]:
+            return query(d[s:e], _r)
         case [_h,*_r] if isinstance(d,dict):
             try:
                 return query(d[_h],_r)
