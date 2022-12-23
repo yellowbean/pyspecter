@@ -4,7 +4,8 @@ import pytest
 m = {"A":{"B1":[10,20],"B2":2,"B3":3}
      ,"C":{"B1":[1,2],"B2":[3,4]}
      ,"D":[1,2,3,4]
-     ,"E":[None,2,3,4]}
+     ,"E":[None,2,3,4]
+     ,"F":{"G":1}}
 
 
 def test_first():
@@ -54,6 +55,9 @@ def test_none_to_val():
 def test_srange():
     assert query(m, ["D",(S.SRANGE,2,3)]) == [3]
 
+def test_must():
+    assert query(m, [(S.MUST,"F","G")]) == 1
+    assert query(m, [(S.MUST,"F","G","NOT_EXISTS")]) == None 
 
 #query(m,["D", (S.NTH, 2)])
 # 3

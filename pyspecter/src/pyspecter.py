@@ -1,4 +1,23 @@
 from enum import Enum
+from functools import reduce  # forward compatibility for Python 3
+import operator
+
+
+def getFromDict(dataDict, mapList):
+    return reduce(operator.getitem, mapList, dataDict)
+
+def lookupMap(m,ks):
+    if not isinstance(m, dict) and len(ks) > 0:
+        return None
+    match ks:
+        case []:
+            return m
+        case _:
+            if ks[0] in m:
+                return lookupMap(m[ks[0]],ks[1:])
+            else:
+                return None
+
 
 class S(Enum):
     ALL=0
@@ -23,6 +42,7 @@ class S(Enum):
     #STOP=18
     VAL=20
     SRANGE=21
+    MUST=22
 
 def query(d,p,debug=False):
     if debug:
@@ -99,6 +119,10 @@ def query(d,p,debug=False):
             return query(d, _r)
         case [(S.SRANGE,s,e), *_r]:
             return query(d[s:e], _r)
+        case [(S.MUST,*k), *_r]:
+            #x = getFromDict(d,k)
+            x = lookupMap(d,k)
+            return query(x, _r)
         case [_h,*_r] if isinstance(d,dict):
             try:
                 return query(d[_h],_r)
