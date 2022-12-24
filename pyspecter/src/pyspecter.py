@@ -42,7 +42,8 @@ class S(Enum):
     #STOP=18
     VAL=20
     SRANGE=21
-    MUST=22
+    MUST=22 # stop navigation
+    IF_PATH=23
 
 def query(d,p,debug=False):
     if debug:
@@ -61,43 +62,43 @@ def query(d,p,debug=False):
         case [(S.MKEY_IN,ks),*_r] if isinstance(d,dict):
             _d = {k:v for k,v in d.items() if k in ks}
             return query(_d,_r)
-        case [S.MVALS,*_r] if isinstance(d,dict):
+        case [S.MVALS, *_r] if isinstance(d, dict):
             return query(list(d.values()),_r)   
-        case [S.FIRST,*_r] if isinstance(d,list):
-            return query(d[0],_r)
-        case [S.FIRST,*_r]  if isinstance(d,dict):
+        case [S.FIRST, *_r] if isinstance(d,list):
+            return query(d[0], _r)
+        case [S.FIRST, *_r] if isinstance(d,dict):
             ps = list(d.items())
-            return query(ps[0],_r)
-        case [S.LAST,*_r] if isinstance(d,list):
+            return query(ps[0], _r)
+        case [S.LAST, *_r] if isinstance(d,list):
             return query(d[-1],_r)
-        case [S.LAST,*_r]  if isinstance(d,dict):
+        case [S.LAST, *_r]  if isinstance(d,dict):
             ps = list(d.items())
-            return query(ps[-1],_r)
-        case [(S.NTH,n),*_r] if isinstance(n,int):
-            return query(d[n],_r)
-        case [(S.NTH,*n),*_r]:
-            return [ query(d[_],_r) for _ in n ]
-        case [S.INDEXED_VALS,*_r] if isinstance(d, dict):
+            return query(ps[-1], _r)
+        case [(S.NTH,n), *_r] if isinstance(n,int):
+            return query(d[n], _r)
+        case [(S.NTH,*n), *_r]:
+            return [ query(d[_], _r) for _ in n ]
+        case [S.INDEXED_VALS, *_r] if isinstance(d, dict):
             ps = list(d.items())
-            return [query(_,_r) for _ in enumerate(ps)]
+            return [ query(_, _r) for _ in enumerate(ps)]
         case [S.INDEXED_VALS,*_r] if isinstance(d, list):
-            return [query(_,_r) for _ in enumerate(d)]
-        case [(S.MULTI_PATH,*_p),*_r]:
-            return [ query(d, _+_r) for _ in _p ]    
-        case [S.ALL,*_r] if isinstance(d,list):
-            return [query(_, _r) for _ in d]
+            return [ query(_, _r) for _ in enumerate(d)]
+        case [(S.MULTI_PATH,*_p), *_r]:
+            return [ query(d, _ + _r) for _ in _p ]    
+        case [S.ALL, *_r] if isinstance(d,list):
+            return [ query(_, _r) for _ in d]
         case [(S.FILTER, f), *_r] if isinstance(d, dict):
-            return [query(d[k], _r) for k, v in d.items() if f(k, v)]
+            return [ query(d[k], _r) for k, v in d.items() if f(k, v)]
         case [(S.FILTER, f), *_r] if isinstance(d, list):
-            return [query(_, _r) for _ in d if f(_)]
+            return [ query(_, _r) for _ in d if f(_)]
         case [(S.MKEY_IF, f), *_r]:
-            return [ query(d[k],_r) for k in d.keys() if f(k) ]
+            return [ query(d[k], _r) for k in d.keys() if f(k) ]
         case [(S.MVAL_IF, f), *_r]:
-            return [ query(d[k],_r) for k, v in d.items() if f(v) ]
+            return [ query(d[k], _r) for k, v in d.items() if f(v) ]
         case [(S.SUB_MAP, ks), *_r]:
             return query({k:v for k,v in d.items() if k in ks} ,_r)
         case [(S.NTH_PATH, *paths),*_r]:
-            return [query(d, _r)[npth] for npth in paths]
+            return [ query(d, _r)[npth] for npth in paths]
         case [S.NONE_LIST, *_r]:
             if d is None:
                 return query([],_r)
@@ -105,7 +106,7 @@ def query(d,p,debug=False):
         case [S.NONE_SET, *_r]:
             if d is None:
                 return query(set(),_r)        
-            return query(d,_r)
+            return query(d, _r)
         case [S.NONE_TUPLE, *_r]:
             if d is None:
                 return query((),_r)    
@@ -113,17 +114,26 @@ def query(d,p,debug=False):
         case [S.VAL, *_r]:
             sub_result = query(d,_r)
             return [ [d, _] for _ in sub_result ]
-        case [(S.NONE_VAL,v), *_r]:
+        case [(S.NONE_VAL, v), *_r]:
             if d is None:
                 return v
             return query(d, _r)
-        case [(S.SRANGE,s,e), *_r]:
+        case [(S.SRANGE, s,e), *_r]:
             return query(d[s:e], _r)
         case [(S.MUST,*k), *_r]:
-            #x = getFromDict(d,k)
-            x = lookupMap(d,k)
+            x = lookupMap(d, k)
             return query(x, _r)
-        case [_h,*_r] if isinstance(d,dict):
+        case [(S.IF_PATH, cond,*t), *_r]:
+            if lookupMap(d, cond):
+                return query(d, t + _r)
+            else:
+                return []
+        case [(S.IF_PATH, cond,*t,*f), *_r]:
+            if lookupMap(d, cond):
+                return query(d, t + _r)
+            else:
+                return query(d, f + _r)
+        case [_h, *_r] if isinstance(d,dict):
             try:
                 return query(d[_h],_r)
             except KeyError as ke:

@@ -59,26 +59,6 @@ def test_must():
     assert query(m, [(S.MUST,"F","G")]) == 1
     assert query(m, [(S.MUST,"F","G","NOT_EXISTS")]) == None 
 
-#query(m,["D", (S.NTH, 2)])
-# 3
-
-#query(m,["C", S.MVALS, S.LAST])
-# [2,4]
-
-#query(m,["C",S.MVALS,S.FIRST])
-# [1,3]
-
-#query(m,["C",S.MKEYS])
-# ['B1', 'B2']
-
-#query(m, [(S.MULTI_PATH,["A", "B1"], ["D"])])
-# [1, [1, 2, 3, 4]]
-
-#query(m,["D",(S.FILTER,lambda x:x>2)])
-# [3,4]
-
-#query(m,["C",S.INDEXED_VALS])
-# [(0, 'B1'), (1, 'B2')]
-
-#query(m,["C",(S.MKEY_IN,set(["B1","B2"]))])
-# {'B1': [1, 2], 'B2': [3, 4]}
+def test_if_path():
+    assert query(m,[(S.IF_PATH,["C","B1"],["E"])]) == [None,2,3,4]
+    assert query(m,[(S.IF_PATH,["C","B3"],["E"],["F"])]) == {'G': 1}
