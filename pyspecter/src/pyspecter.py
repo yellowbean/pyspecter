@@ -123,12 +123,16 @@ def query(d,p,debug=False):
         case [(S.MUST,*k), *_r]:
             x = lookupMap(d, k)
             return query(x, _r)
-        case [(S.IF_PATH, cond,*t), *_r]:
+        case [(S.IF_PATH, cond, t), *_r]:
+            print("Lookup ",cond,d)
             if lookupMap(d, cond):
+                print("Found")
                 return query(d, t + _r)
             else:
+                print("Not Found")
+                return query(d, t + _r)
                 return []
-        case [(S.IF_PATH, cond,*t,*f), *_r]:
+        case [(S.IF_PATH, cond,t,f), *_r]:
             if lookupMap(d, cond):
                 return query(d, t + _r)
             else:
@@ -138,3 +142,5 @@ def query(d,p,debug=False):
                 return query(d[_h],_r)
             except KeyError as ke:
                 print(f"{_h} is not in {d}")
+            except TypeError as te:
+                print(f"navigat to {_h} on {d}")

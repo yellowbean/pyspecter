@@ -61,4 +61,5 @@ def test_must():
 
 def test_if_path():
     assert query(m,[(S.IF_PATH,["C","B1"],["E"])]) == [None,2,3,4]
+    assert query(m,[(S.IF_PATH,["C","B1"],["NOT_EXISTS"])]) == None
     assert query(m,[(S.IF_PATH,["C","B3"],["E"],["F"])]) == {'G': 1}
