@@ -5,7 +5,8 @@ m = {"A":{"B1":[10,20],"B2":2,"B3":3}
      ,"C":{"B1":[1,2],"B2":[3,4]}
      ,"D":[1,2,3,4]
      ,"E":[None,2,3,4]
-     ,"F":{"G":1}}
+     ,"F":{"G":1}
+     ,"H":["A1","A2","A3"]}
 
 
 def test_first():
@@ -63,3 +64,7 @@ def test_if_path():
     assert query(m,[(S.IF_PATH,["C","B1"],["E"])]) == [None,2,3,4]
     assert query(m,[(S.IF_PATH,["C","B1"],["NOT_EXISTS"])]) == None
     assert query(m,[(S.IF_PATH,["C","B3"],["E"],["F"])]) == {'G': 1}
+
+def test_regrex():
+    assert query(m, ["A",(S.REGEX,r"B[23]")]) == [ 2,3 ]
+    assert query(m, ["H",(S.REGEX,r"\S1")]) == [ "A1" ]

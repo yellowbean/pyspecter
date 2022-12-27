@@ -1,6 +1,7 @@
 from enum import Enum
 from functools import reduce  # forward compatibility for Python 3
 import operator
+import re
 
 
 def getFromDict(dataDict, mapList):
@@ -44,6 +45,7 @@ class S(Enum):
     SRANGE=21
     MUST=22 # stop navigation
     IF_PATH=23
+    REGEX=24
 
 def query(d,p,debug=False):
     if debug:
@@ -137,6 +139,12 @@ def query(d,p,debug=False):
                 return query(d, t + _r)
             else:
                 return query(d, f + _r)
+        case [(S.REGEX, reg), *_r] if isinstance(d,dict):
+            pass_keys = [ query(d[k], _r) for k in d.keys() if re.match(reg,k) ]
+            return pass_keys
+        case [(S.REGEX, reg), *_r] if isinstance(d,list):
+            pass_keys = [ query(d[i], _r) for i,k in enumerate(d) if re.match(reg,k) ]
+            return pass_keys
         case [_h, *_r] if isinstance(d,dict):
             try:
                 return query(d[_h],_r)
