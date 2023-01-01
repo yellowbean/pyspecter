@@ -126,14 +126,10 @@ def query(d,p,debug=False):
             x = lookupMap(d, k)
             return query(x, _r)
         case [(S.IF_PATH, cond, t), *_r]:
-            print("Lookup ",cond,d)
             if lookupMap(d, cond):
-                print("Found")
                 return query(d, t + _r)
             else:
-                print("Not Found")
-                return query(d, t + _r)
-                return []
+                return None
         case [(S.IF_PATH, cond,t,f), *_r]:
             if lookupMap(d, cond):
                 return query(d, t + _r)
