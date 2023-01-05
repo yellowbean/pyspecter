@@ -68,3 +68,10 @@ def test_if_path():
 def test_regrex():
     assert query(m, ["A",(S.REGEX,r"B[23]")]) == [ 2,3 ]
     assert query(m, ["H",(S.REGEX,r"\S1")]) == [ "A1" ]
+
+def test_maybe():
+    m1 = {"A":{"B":{"C":1}}}
+    assert query(m1, ["A",(S.MAYBE,"B"),"C"]) == 1
+    assert query(m1, ["A",(S.MAYBE,"D"),"B"]) == {"C":1}
+
+

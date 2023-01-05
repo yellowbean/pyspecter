@@ -102,6 +102,9 @@ Navigate to values of list if elements satisfy a regex expression:
 
     assert query(m, ["H",(S.REGEX,r"\S1")]) == [ "A1" ]
 
+Navigate with optional path node 
+
+    assert query(m, [(S.MAYBE,"F","G")]) == 1
 
 #### Handling None value
 

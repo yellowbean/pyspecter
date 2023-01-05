@@ -46,6 +46,7 @@ class S(Enum):
     MUST=22 # stop navigation
     IF_PATH=23
     REGEX=24
+    MAYBE=25
 
 def query(d,p,debug=False):
     if debug:
@@ -141,10 +142,19 @@ def query(d,p,debug=False):
         case [(S.REGEX, reg), *_r] if isinstance(d,list):
             pass_keys = [ query(d[i], _r) for i,k in enumerate(d) if re.match(reg,k) ]
             return pass_keys
+        case [(S.MAYBE, *m), *_r]:
+            if len(m)>0 :
+                new_m = m[1:]
+                if m[0] in d:
+                    return query(d[m[0]], [(S.MAYBE, *new_m)]+_r)
+                else:
+                    return query(d, [(S.MAYBE, *new_m)]+_r)
+            else:
+                return query(d, _r)
         case [_h, *_r] if isinstance(d,dict):
             try:
                 return query(d[_h],_r)
             except KeyError as ke:
                 print(f"{_h} is not in {d}")
             except TypeError as te:
-                print(f"navigat to {_h} on {d}")
+                print(f"navigate to {_h} on {d}, rest path:{_r}")
