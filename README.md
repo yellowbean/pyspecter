@@ -1,5 +1,9 @@
 # pyspecter
 
+[![Python version](https://img.shields.io/pypi/pyversions/pyspecter)](https://img.shields.io/pypi/pyversions/pyspecter)
+[![PyPI version](https://badge.fury.io/py/pyspecter.svg)](https://badge.fury.io/py/pyspecter)
+[![PyPI download](https://img.shields.io/pypi/dm/pyspecter)](https://img.shields.io/pypi/dm/pyspecter)
+
 A Python library to query nested structure, inspired by [specter](https://github.com/redplanetlabs/specter)
 
 If you are dealing with nested python structure and it require complex rule to search the data underneath like:
