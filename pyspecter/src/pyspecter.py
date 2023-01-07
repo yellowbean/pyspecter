@@ -19,7 +19,6 @@ def lookupMap(m,ks):
             else:
                 return None
 
-
 class S(Enum):
     ALL=0
     FIRST=1

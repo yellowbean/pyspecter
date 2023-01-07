@@ -1,4 +1,4 @@
-from pyspecter import query,S
+from pyspecter import query, S
 import pytest
 
 m = {"A":{"B1":[10,20],"B2":2,"B3":3}
