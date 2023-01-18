@@ -1,0 +1,10 @@
+LICENSE
+README.md
+pyproject.toml
+setup.py
+pyspecter/__init__.py
+pyspecter/pyspecter.py
+pyspecter.egg-info/PKG-INFO
+pyspecter.egg-info/SOURCES.txt
+pyspecter.egg-info/dependency_links.txt
+pyspecter.egg-info/top_level.txt
