@@ -53,6 +53,13 @@ def test_none_to_val():
     assert query(None,[(S.NONE_VAL,10)]) == 10
     assert query(5,[(S.NONE_VAL,10)]) == 5
 
+def test_multi_path():
+    mpath = {"A":{"B":1,
+                  "C":[2,3,4,5]}}
+    assert query(mpath,["A",
+                        (S.MULTI_PATH,["B"]
+                                     ,["C", S.LAST])]) == [1,5]
+
 def test_srange():
     assert query(m, ["D",(S.SRANGE,2,3)]) == [3]
 

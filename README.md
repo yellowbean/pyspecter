@@ -70,6 +70,18 @@ Navigate to map which its key or value satisify a custom function
     assert query(m, ["A", (S.MKEY_IF, lambda x:x.endswith("1"))]) == [[10, 20]]
     assert query(m, ["A", (S.MVAL_IF, lambda x:x==[10,20])]) == [[10, 20]]
     
+#### Branching paths
+
+Branching by multiple paths
+
+    mpath = {"A":{"B":1,
+                  "C":[2,3,4,5]}}
+    assert query(mpath,["A",
+                        (S.MULTI_PATH,["B"]
+                                     ,["C", S.LAST])]) == [1,5]
+
+
+
 #### Conditional Navigation
 
 Navigate to a specifie path
