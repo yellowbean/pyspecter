@@ -117,5 +117,62 @@ If current position is not a None,then return the value of current position
     assert query(5,[(S.NONE_VAL,10)]) == 5
     
     
+### Operation on results
+
+user can operate on the query result by
+
+* REUDCE -> perform `reduce` on the `list` or `dict` result ,from left to right.
+
+<!-- -->
+
+    m2 = {"A":{"B":["C1","C2","C3"]}}
+    assert query(m2, ["A","B",(H.REDUCE,lambda acc,x:acc+"|"+x, ">>>")]) == ">>>|C1|C2|C3"
+    assert query(m2, ["A","B",(H.REDUCE,lambda acc,x:acc+"|"+x)]) == "C1|C2|C3"
+
+    m2 = {"A":{"B":1,"D":2}}
+    assert query(m2, ["A",(H.REDUCE,lambda acc,x:acc+"|"+str(x[1]),">>")]) == ">>|1|2"
+    assert query(m2, ["A",(H.REDUCE,lambda acc,x:acc+"|"+str(x[0]),">>")]) == ">>|B|D"
+
+* MAP -> performn a `transformation` on the `list` or `dict` result 
+
+<!-- -->
+
+    m2 = {"A":{"B":["C1","C2","C3"]}}
+    assert query(m2, ["A","B",(H.MAP,lambda x:x+"!")]) == ["C1!","C2!","C3!"]
+
+    m2 = {"A":{"B":"C1","D":"C2"}}
+    assert query(m2, ["A",(H.MAP,(lambda k,v: v+"!"))]) == ["C1!","C2!"]
+
+* SUM -> `sum()` the result list, with optional custom function passed before summing.
+
+<!-- -->
+
+    m2 = {"A":{"B":[1,2]}}
+    assert query(m2, ["A","B",H.SUM]) == 3
+
+    m2 = {"A":{"B":"1","D":"2"}}
+    assert query(m2, ["A",S.MVALS,(H.SUM,lambda x: int(x))]) == 3
+ 
+
+* MAX/MIN -> Using built-in `max()`/`min()` on the `list` result, with optioanl custom function passed before max/min
+
+<!-- -->
+
+    m2 = {"A":{"B":[3,5,2]}}
+    assert query(m2, ["A","B",H.MIN]) == 2
+    assert query(m2, ["A","B",(H.MIN,str)]) == "2"
+    assert query(m2, ["A","B",H.MAX]) == 5
+    assert query(m2, ["A","B",(H.MAX, str)]) == "5"
+ 
+
+
+* ORDER -> using `sorted()` to sort the result list, with optional custom function passed before sorting.
+
+<!-- -->
+
+    m2 = {"A":{"B":[3,5,2]}}
+    m2 = {"A":{"B":[3,5,2]}}
+    assert query(m2, ["A","B",H.ORDER]) == [2,3,5]
+    assert query(m2, ["A","B",(H.ORDER, str)]) == ["2","3","5"]
 
     

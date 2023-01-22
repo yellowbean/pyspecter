@@ -1,4 +1,4 @@
-from pyspecter import query, S
+from pyspecter import query, S, H
 import pytest
 
 m = {"A":{"B1":[10,20],"B2":2,"B3":3}
@@ -74,4 +74,39 @@ def test_maybe():
     assert query(m1, ["A",(S.MAYBE,"B"),"C"]) == 1
     assert query(m1, ["A",(S.MAYBE,"D"),"B"]) == {"C":1}
 
+def test_fold_l():
+    m2 = {"A":{"B":["C1","C2","C3"]}}
+    assert query(m2, ["A","B",(H.REDUCE,lambda acc,x:acc+"|"+x, ">>>")]) == ">>>|C1|C2|C3"
+    assert query(m2, ["A","B",(H.REDUCE,lambda acc,x:acc+"|"+x)]) == "C1|C2|C3"
 
+def test_fold_m():
+    m2 = {"A":{"B":1,"D":2}}
+    assert query(m2, ["A",(H.REDUCE,lambda acc,x:acc+"|"+str(x[1]),">>")]) == ">>|1|2"
+    assert query(m2, ["A",(H.REDUCE,lambda acc,x:acc+"|"+str(x[0]),">>")]) == ">>|B|D"
+    
+def test_mapping_l():
+    m2 = {"A":{"B":["C1","C2","C3"]}}
+    assert query(m2, ["A","B",(H.MAP,lambda x:x+"!")]) == ["C1!","C2!","C3!"]
+
+def test_mapping_m():
+    m2 = {"A":{"B":"C1","D":"C2"}}
+    assert query(m2, ["A",(H.MAP,(lambda k,v: v+"!"))]) == ["C1!","C2!"]
+
+def test_sum_1():
+    m2 = {"A":{"B":[1,2]}}
+    assert query(m2, ["A","B",H.SUM]) == 3
+
+def test_sum_2():
+    m2 = {"A":{"B":"1","D":"2"}}
+    assert query(m2, ["A",S.MVALS,(H.SUM,lambda x: int(x))]) == 3
+    
+def test_min_max_order():
+    m2 = {"A":{"B":[3,5,2]}}
+    assert query(m2, ["A","B",H.MIN]) == 2
+    assert query(m2, ["A","B",(H.MIN,str)]) == "2"
+    assert query(m2, ["A","B",H.MAX]) == 5
+    assert query(m2, ["A","B",(H.MAX, str)]) == "5"
+    
+    assert query(m2, ["A","B",H.ORDER]) == [2,3,5]
+    assert query(m2, ["A","B",(H.ORDER, str)]) == ["2","3","5"]
+    

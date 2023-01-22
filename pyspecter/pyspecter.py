@@ -47,6 +47,15 @@ class S(Enum):
     REGEX=24
     MAYBE=25
 
+class H(Enum):
+    REDUCE=0 #
+    MAP=1 #
+    ORDER=2 # 
+    MAX=3 #
+    MIN=4 #
+    SUM=5 #
+
+
 def query(d,p,debug=False):
     if debug:
         print("matching",d,p)
@@ -150,10 +159,44 @@ def query(d,p,debug=False):
                     return query(d, [(S.MAYBE, *new_m)]+_r)
             else:
                 return query(d, _r)
+        case [(H.REDUCE,f, i), *_r] if isinstance(d,list):
+            _res = reduce(f, d, i)
+            return query(_res , _r) 
+        case [(H.REDUCE, f), *_r] if isinstance(d,list):
+            _res = reduce(f, d)
+            return query(_res , _r) 
+        case [(H.REDUCE, f, i), *_r] if isinstance(d,dict):
+            _res = reduce(f, d.items(),i)
+            return query(_res , _r) 
+        case [(H.MAP,f), *_r] if isinstance(d,list):
+            _res = [f(_) for _ in  d]
+            return query(_res , _r) 
+        case [(H.MAP,f), *_r] if isinstance(d,dict):
+            _res = [f(k,v) for (k,v) in d.items()]
+            return query(_res , _r) 
+        case [H.SUM, *_r] if isinstance(d,list):
+            return query(sum(d) , _r) 
+        case [(H.SUM,f), *_r] if isinstance(d,list):
+            return query(sum([ f(_) for _ in d]) , _r) 
+        case [H.MAX, *_r] if isinstance(d,list):
+            return query(max(d) , _r) 
+        case [(H.MAX,f), *_r] if isinstance(d,list):
+            return query(max([ f(_) for _ in d]) , _r) 
+        case [H.MIN, *_r] if isinstance(d,list):
+            return query(min(d) , _r)
+        case [(H.MIN,f), *_r] if isinstance(d,list):
+            return query(min([ f(_) for _ in d]) , _r) 
+        case [H.ORDER, *_r] if isinstance(d,list):
+            return query(sorted(d) , _r)
+        case [(H.ORDER, f), *_r] if isinstance(d,list):
+            _m_list = [f(_) for _ in d]
+            return query(sorted(_m_list), _r) 
         case [_h, *_r] if isinstance(d,dict):
             try:
-                return query(d[_h],_r)
+                return query(d[_h], _r)
             except KeyError as ke:
                 print(f"{_h} is not in {d}")
             except TypeError as te:
+                print(f"Error->{te}")
                 print(f"navigate to {_h} on {d}, rest path:{_r}")
+
