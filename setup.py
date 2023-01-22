@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pyspecter",                     # This is the name of the package
-    version="0.0.8",                        # The initial release version
+    version="0.1.0",                        # The initial release version
     author="Xiaoyu Zhang",                     # Full name of the author
     author_email="always.zhang@gmail.com",
     description="A library to query nested data in Python",
