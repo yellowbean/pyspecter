@@ -117,3 +117,8 @@ def test_min_max_order():
     assert query(m2, ["A","B",H.ORDER]) == [2,3,5]
     assert query(m2, ["A","B",(H.ORDER, str)]) == ["2","3","5"]
     
+def test_count():
+    m2 = {"A":{"B":[3,5,2]}}
+    assert query(m2, ["A","B",H.COUNT]) == 3
+    assert query(m2, ["A",H.COUNT]) == 1
+    

@@ -54,6 +54,7 @@ class H(Enum):
     MAX=3 #
     MIN=4 #
     SUM=5 #
+    COUNT=6
 
 
 def query(d,p,debug=False):
@@ -191,6 +192,8 @@ def query(d,p,debug=False):
         case [(H.ORDER, f), *_r] if isinstance(d,list):
             _m_list = [f(_) for _ in d]
             return query(sorted(_m_list), _r) 
+        case [H.COUNT, *_r]:
+            return query(len(d), _r) 
         case [_h, *_r] if isinstance(d,dict):
             try:
                 return query(d[_h], _r)
