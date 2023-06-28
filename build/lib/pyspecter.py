@@ -7,25 +7,13 @@ major,minor,*_ = sys.version_info
 if major == 3 and minor > 10 :
     raise RuntimeError("pyspecter only runs above 3.10")
 
-def getFromDict(dataDict, mapList):
-    return reduce(operator.getitem, mapList, dataDict)
-
-def lookupMap(m,ks):
-    if not isinstance(m, dict) and len(ks) > 0:
-        return None
-    match ks:
-        case []:
-            return m
-        case _:
-            if ks[0] in m:
-                return lookupMap(m[ks[0]],ks[1:])
-            else:
-                return None
-
-
-
-
-
+def ensure_map_path(d, *indices):
+    sentinel = object()
+    for index in indices:
+        d = d.get(index, sentinel)
+        if d is sentinel:
+            yield False
+    return True
 
 class S(Enum):
     ALL=0
@@ -128,18 +116,20 @@ def query(d,p,debug=False):
             if d is None:
                 return v
             return query(d, _r)
-        case [(S.SRANGE, s,e), *_r]:
+        case [(S.SRANGE, s, e), *_r]:
             return query(d[s:e], _r)
-        case [(S.MUST,*k), *_r]:
-            x = lookupMap(d, k)
-            return query(x, _r)
+        case [(S.MUST, *k), *_r]:
+            if ensure_map_path(d, *k):
+                return query(d, k+_r)
+            else:
+                return None
         case [(S.IF_PATH, cond, t), *_r]:
-            if lookupMap(d, cond):
+            if ensure_map_path(d, *cond):
                 return query(d, t + _r)
             else:
                 return None
-        case [(S.IF_PATH, cond,t,f), *_r]:
-            if lookupMap(d, cond):
+        case [(S.IF_PATH, cond, t, f), *_r]:
+            if ensure_map_path(d, *cond):
                 return query(d, t + _r)
             else:
                 return query(d, f + _r)

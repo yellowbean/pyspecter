@@ -50,16 +50,16 @@ class S(Enum):
 class H(Enum):
     REDUCE=0 #
     MAP=1 #
-    ORDER=2 # 
+    ORDER=2 #
     MAX=3 #
     MIN=4 #
     SUM=5 #
     COUNT=6
 
 
-def query(d,p,debug=False):
+def query(d, p, debug=False):
     if debug:
-        print("matching",d,p)
+        print(f"matching path={p} with data: {d}")
     match p:
         case []:
             return d
@@ -130,7 +130,7 @@ def query(d,p,debug=False):
             if d is None:
                 return v
             return query(d, _r)
-        case [(S.SRANGE, s,e), *_r]:
+        case [(S.SRANGE, s, e), *_r]:
             return query(d[s:e], _r)
         case [(S.MUST,*k), *_r]:
             x = lookupMap(d, k)
@@ -146,11 +146,9 @@ def query(d,p,debug=False):
             else:
                 return query(d, f + _r)
         case [(S.REGEX, reg), *_r] if isinstance(d,dict):
-            pass_keys = [ query(d[k], _r) for k in d.keys() if re.match(reg,k) ]
-            return pass_keys
+            return [ query(d[k], _r) for k in d.keys() if re.match(reg,k) ]
         case [(S.REGEX, reg), *_r] if isinstance(d,list):
-            pass_keys = [ query(d[i], _r) for i,k in enumerate(d) if re.match(reg,k) ]
-            return pass_keys
+            return [ query(d[i], _r) for i,k in enumerate(d) if re.match(reg,k) ]
         case [(S.MAYBE, *m), *_r]:
             if len(m)>0 :
                 new_m = m[1:]
