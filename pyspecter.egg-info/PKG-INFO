@@ -1,12 +1,10 @@
 Metadata-Version: 2.1
 Name: pyspecter
-Version: 0.0.7
+Version: 0.1.0
 Summary: A library to query nested data in Python
 Home-page: https://github.com/yellowbean/pyspecter
 Author: Xiaoyu Zhang
 Author-email: always.zhang@gmail.com
-License: UNKNOWN
-Platform: UNKNOWN
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Operating System :: OS Independent
@@ -86,6 +84,18 @@ Navigate to map which its key or value satisify a custom function
     assert query(m, ["A", (S.MKEY_IF, lambda x:x.endswith("1"))]) == [[10, 20]]
     assert query(m, ["A", (S.MVAL_IF, lambda x:x==[10,20])]) == [[10, 20]]
     
+#### Branching paths
+
+Branching by multiple paths
+
+    mpath = {"A":{"B":1,
+                  "C":[2,3,4,5]}}
+    assert query(mpath,["A",
+                        (S.MULTI_PATH,["B"]
+                                     ,["C", S.LAST])]) == [1,5]
+
+
+
 #### Conditional Navigation
 
 Navigate to a specifie path
@@ -133,7 +143,62 @@ If current position is not a None,then return the value of current position
     assert query(5,[(S.NONE_VAL,10)]) == 5
     
     
+### Operation on results
+
+user can operate on the query result by
+
+* REUDCE -> perform `reduce` on the `list` or `dict` result ,from left to right.
+
+<!-- -->
+
+    m2 = {"A":{"B":["C1","C2","C3"]}}
+    assert query(m2, ["A","B",(H.REDUCE,lambda acc,x:acc+"|"+x, ">>>")]) == ">>>|C1|C2|C3"
+    assert query(m2, ["A","B",(H.REDUCE,lambda acc,x:acc+"|"+x)]) == "C1|C2|C3"
+
+    m2 = {"A":{"B":1,"D":2}}
+    assert query(m2, ["A",(H.REDUCE,lambda acc,x:acc+"|"+str(x[1]),">>")]) == ">>|1|2"
+    assert query(m2, ["A",(H.REDUCE,lambda acc,x:acc+"|"+str(x[0]),">>")]) == ">>|B|D"
+
+* MAP -> performn a `transformation` on the `list` or `dict` result 
+
+<!-- -->
+
+    m2 = {"A":{"B":["C1","C2","C3"]}}
+    assert query(m2, ["A","B",(H.MAP,lambda x:x+"!")]) == ["C1!","C2!","C3!"]
+
+    m2 = {"A":{"B":"C1","D":"C2"}}
+    assert query(m2, ["A",(H.MAP,(lambda k,v: v+"!"))]) == ["C1!","C2!"]
+
+* SUM -> `sum()` the result list, with optional custom function passed before summing.
+
+<!-- -->
+
+    m2 = {"A":{"B":[1,2]}}
+    assert query(m2, ["A","B",H.SUM]) == 3
+
+    m2 = {"A":{"B":"1","D":"2"}}
+    assert query(m2, ["A",S.MVALS,(H.SUM,lambda x: int(x))]) == 3
+ 
+
+* MAX/MIN -> Using built-in `max()`/`min()` on the `list` result, with optioanl custom function passed before max/min
+
+<!-- -->
+
+    m2 = {"A":{"B":[3,5,2]}}
+    assert query(m2, ["A","B",H.MIN]) == 2
+    assert query(m2, ["A","B",(H.MIN,str)]) == "2"
+    assert query(m2, ["A","B",H.MAX]) == 5
+    assert query(m2, ["A","B",(H.MAX, str)]) == "5"
+ 
+
+
+* ORDER -> using `sorted()` to sort the result list, with optional custom function passed before sorting.
+
+<!-- -->
+
+    m2 = {"A":{"B":[3,5,2]}}
+    m2 = {"A":{"B":[3,5,2]}}
+    assert query(m2, ["A","B",H.ORDER]) == [2,3,5]
+    assert query(m2, ["A","B",(H.ORDER, str)]) == ["2","3","5"]
 
     
-
-
