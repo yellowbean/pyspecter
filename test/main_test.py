@@ -1,4 +1,4 @@
-from pyspecter import query, S, H
+from pyspecter import query, S, H, queryFile
 import pytest
 
 m = {"A":{"B1":[10,20],"B2":2,"B3":3}
@@ -122,3 +122,8 @@ def test_count():
     assert query(m2, ["A","B",H.COUNT]) == 3
     assert query(m2, ["A",H.COUNT]) == 1
     
+def test_read_file():
+    assert queryFile("test/file.json",["A",S.FIRST]) == 1
+    assert queryFile("test/file.json",["B",S.MVALS]) == [[1,2,3],"F"]
+    assert queryFile("test/file.json",["B",S.MKEYS]) == ["C","D"]
+    assert queryFile("test/file.json",["A",H.COUNT]) == 3

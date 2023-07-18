@@ -1,7 +1,7 @@
 from enum import Enum
 from functools import reduce  # forward compatibility for Python 3
 import operator
-import re
+import re,json
 
 
 def getFromDict(dataDict, mapList):
@@ -201,3 +201,7 @@ def query(d, p, debug=False):
                 print(f"Error->{te}")
                 print(f"navigate to {_h} on {d}, rest path:{_r}")
 
+def queryFile(f, p, debug=False):
+    with open(f,'r') as _f:
+        i = json.load(_f)
+        return query(i, p, debug=debug)
