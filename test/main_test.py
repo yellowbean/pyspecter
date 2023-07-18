@@ -1,4 +1,4 @@
-from pyspecter import query, S, H, queryFile
+from pyspecter import query, S, H, queryFile, queryFolder
 import pytest
 
 m = {"A":{"B1":[10,20],"B2":2,"B3":3}
@@ -127,3 +127,13 @@ def test_read_file():
     assert queryFile("test/file.json",["B",S.MVALS]) == [[1,2,3],"F"]
     assert queryFile("test/file.json",["B",S.MKEYS]) == ["C","D"]
     assert queryFile("test/file.json",["A",H.COUNT]) == 3
+
+def test_read_folder():
+    r = queryFolder("test/testFolder",["A"])
+    assert r == {"file1.json":[1,2,3]
+                 ,"file2.json":[4,5,6]
+                 ,"fileA.json":[7,8,9]}
+
+    # with filer
+    r = queryFolder("test/testFolder",["A"],m=r"file\d.json")
+    assert r == {"file1.json":[1,2,3] ,"file2.json":[4,5,6]}

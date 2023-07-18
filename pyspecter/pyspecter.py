@@ -1,7 +1,7 @@
 from enum import Enum
 from functools import reduce  # forward compatibility for Python 3
 import operator
-import re,json
+import re,json,os
 
 
 def getFromDict(dataDict, mapList):
@@ -205,3 +205,13 @@ def queryFile(f, p, debug=False):
     with open(f,'r') as _f:
         i = json.load(_f)
         return query(i, p, debug=debug)
+
+def queryFolder(fp,p,m:str=None):
+    fs = os.listdir(fp)
+    if m is not None:
+        fs = [ _ for _ in fs if re.match(m,_)]
+    fsp = [ (_,os.path.join(fp,_)) for _ in fs]
+    return {fn:queryFile(fp, p) for fn,fp in fsp}
+
+    
+    
